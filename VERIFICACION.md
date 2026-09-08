@@ -7,17 +7,26 @@
 - Revisión de rutas, formularios y correspondencia con los requisitos.
 - Comprobación de 254 importaciones locales y existencia de las 14 entidades solicitadas: sin errores.
 
-La revisión sintáctica **no equivale** a comprobar tipos TypeScript, compilar Vite, ejecutar Prisma o probar la interfaz en un navegador.
+- Instalación de dependencias en ambos proyectos y generación de sus `package-lock.json`.
+- Backend: `prisma generate`, `prisma validate`, `npm run build` y `npm test` completados correctamente.
+- Frontend: `npm run build` completado correctamente (TypeScript y Vite).
+- bcrypt: creación y comparación de un hash de prueba completadas correctamente.
 
-## Pendiente por falta de red y PostgreSQL
+Estas comprobaciones no sustituyen las pruebas de integración con PostgreSQL ni la revisión visual en navegador.
 
-- `npm install` en ambos proyectos y generación de archivos de bloqueo de dependencias.
-- `prisma migrate dev`, validación del esquema con Prisma y creación del usuario inicial.
-- `npm run build` en backend y frontend.
+## Pendiente de PostgreSQL y validación de integración
+
+- `prisma migrate dev` y creación del usuario inicial.
 - Prueba API completa `node scripts/smoke-api.mjs` contra una base de prueba.
 - Prueba de concurrencia real: dos citas simultáneas y dos pagos simultáneos sobre la misma cuota.
 - Revisión visual en laptop y celular, navegación por teclado, cambios de contraseña, sesión inactiva durante 15 minutos y pestañas múltiples.
 - Apertura y revisión de los PDF y Excel generados con datos reales de prueba.
+
+## Advertencias de las herramientas
+
+- `npm audit` detecta 8 avisos en backend (4 moderados y 4 altos, contando dependencias afectadas) y 2 moderados en frontend. Las cadenas afectadas incluyen Prisma/configuración, Express/qs, ExcelJS/uuid y React Router. `npm audit fix` sin cambios incompatibles no los resolvió. Queda pendiente evaluar actualizaciones y volver a probar antes de un despliegue con datos reales; no se aplicaron las degradaciones o cambios de versión mayor sugeridos por `--force`.
+- Vite informa de un paquete JavaScript de aproximadamente 793 kB sin comprimir (234 kB gzip). La compilación termina; la división del código puede optimizar la carga inicial.
+- Prisma 6.19 avisa que la configuración en `package.json` deberá migrarse si se actualiza a una versión mayor. La configuración actual funciona con la versión fijada.
 
 ## Matriz de trazabilidad
 

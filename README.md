@@ -4,9 +4,9 @@ MVP para el Consultorio Odontológico Juzel, Chiclayo, Perú. Una única usuaria
 
 ## Estado de la entrega
 
-El código de todos los módulos está preparado para conectarse a PostgreSQL. **La instalación de dependencias, la compilación completa y las pruebas de integración están pendientes**: la red del equipo bloquea npm mediante FortiGate y la base de datos aún no está disponible. No se ha sustituido PostgreSQL por datos de demostración ni por almacenamiento del navegador.
+Las dependencias ya están instaladas y **frontend y backend compilan correctamente**. Prisma generó su cliente y validó el esquema. La base de datos todavía no está disponible, por lo que las migraciones y las pruebas de integración siguen pendientes. No se ha sustituido PostgreSQL por datos de demostración ni por almacenamiento del navegador.
 
-Se ejecutaron las pruebas puras de cálculo de cuotas y horarios y una revisión sintáctica del código. Consulta [VERIFICACION.md](VERIFICACION.md) para distinguir los controles realizados de los pendientes.
+Las cuatro pruebas de cálculo de cuotas y horarios pasaron, y bcrypt se comprobó con un hash y su verificación. Se incluyen los archivos `package-lock.json` de ambos proyectos. Consulta [VERIFICACION.md](VERIFICACION.md) para los controles realizados, las advertencias de dependencias y los pendientes.
 
 ## Requisitos
 

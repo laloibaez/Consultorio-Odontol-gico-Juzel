@@ -5,3 +5,4 @@ dist/
 backups/
 playwright-report/
 .npm-cache/
+*.tsbuildinfo
