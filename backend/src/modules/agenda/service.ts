@@ -3,6 +3,7 @@ import { isLocalDatabase } from '../../config/local-mode.js';
 import { appointmentSchema } from '../../utils/schemas.js';
 import { requirePatient } from '../pacientes/repository.js';
 import { AppError, checkHours, peruDay } from '../../utils/domain.js';
+import { validateAppointmentState } from '../../utils/appointment-state.js';
 const bounds = (d: string) => new Date(d + 'T00:00:00-05:00');
 export const agendaService = {
   list: async (desde?: string, hasta?: string, pacienteId?: string) => {
@@ -72,7 +73,7 @@ export const agendaService = {
             id
           }
         });
-        if (!old || old.estado === 'Cancelada' || old.estado === 'Completada') throw new AppError(409, 'Esta cita no se puede reprogramar');
+        if (!old || old.estado !== 'Confirmada') throw new AppError(409, 'Esta cita no se puede reprogramar');
       }
       const overlap = await tx.cita.findFirst({
         where: {
@@ -110,7 +111,6 @@ export const agendaService = {
     });
   },
   state: async (id: string, estado: string) => {
-    if (!['Cancelada', 'Completada'].includes(estado)) throw new AppError(400, 'Estado inválido');
     const c = await db.cita.findUnique({
       where: {
         id
@@ -118,14 +118,9 @@ export const agendaService = {
     });
     if (!c) throw new AppError(404, 'Cita no encontrada');
     await requirePatient(c.pacienteId);
-    if (c.estado !== 'Confirmada') throw new AppError(409, 'La cita ya fue cerrada');
-    return db.cita.update({
-      where: {
-        id
-      },
-      data: {
-        estado
-      }
-    });
+    validateAppointmentState(c.estado,estado,c.fin);
+    const updated=await db.cita.updateMany({where:{id,estado:'Confirmada'},data:{estado}});
+    if(!updated.count)throw new AppError(409,'La cita ya fue cerrada. Actualiza la agenda.');
+    return db.cita.findUniqueOrThrow({where:{id}});
   }
 };

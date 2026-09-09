@@ -37,6 +37,7 @@ Los cambios se conservan en `backend/.local/juzel.db` al cerrar o reiniciar. El 
 3. Registra una atención y vincúlala a una sesión pendiente de su tratamiento.
 4. Registra un pago parcial y comprueba el saldo restante.
 5. Crea o reprograma una cita y comprueba la validación de horario.
+   Si ya terminó y el paciente no llegó, abre su detalle y elige **Marcar como no asistió → Confirmar inasistencia**. El estado queda en la agenda y en las citas del paciente; no registra atenciones ni modifica sesiones o pagos. Para una nueva visita se crea otra cita.
 6. Exporta su historia clínica en PDF y un reporte en Excel.
 
 ## Regresar a PostgreSQL

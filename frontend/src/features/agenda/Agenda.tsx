@@ -27,7 +27,7 @@ export function Agenda() {
   const days = Array.from({
     length: view === 'Mes' ? new Date(end).getUTCDate() : view === 'Semana' ? 7 : 1
   }, (_, i) => add(start, i));
-  return <><div className="page-head"><div><h1>Agenda</h1><p className="muted">Organiza el día, dedica tiempo a cada sonrisa.</p></div><Button onClick={() => setCreate(true)}>+ Nueva cita</Button></div><div className="card"><div className="calendar-toolbar"><div className="segmented">{['Día', 'Semana', 'Mes'].map(v => <button key={v} className={view === v ? 'active' : ''} onClick={() => setView(v)}>{v}</button>)}</div><div className="inline"><Button secondary onClick={() => setDay(add(day, view === 'Mes' ? -30 : view === 'Semana' ? -7 : -1))}>←</Button><Input aria-label="Fecha de agenda" type="date" value={day} onChange={e => e.target.value && setDay(e.target.value)} /><Button secondary onClick={() => setDay(add(day, view === 'Mes' ? 30 : view === 'Semana' ? 7 : 1))}>→</Button><Button secondary onClick={() => setDay(today())}>Hoy</Button></div></div><p className="muted small">Turnos: 09:00–13:00 y 15:00–20:00 · Hora de Perú</p><ErrorBox error={q.error} />{q.isLoading ? <Loading /> : view === 'Mes' ? <div className="month-grid">{days.map(date => <div className="month-day" key={date}><strong>{fecha(date)}</strong>{q.data?.filter(c => localDate(c.inicio) === date).map(c => <button className={'appointment ' + (c.estado === 'Cancelada' ? 'cancelled' : '')} key={c.id} onClick={() => setSelected(c)}>{hora(c.inicio)} {c.paciente.nombres}<small>{c.tipo}</small></button>)}</div>)}</div> : <div className="calendar-scroll"><div className="calendar" style={{
+  return <><div className="page-head"><div><h1>Agenda</h1><p className="muted">Organiza el día, dedica tiempo a cada sonrisa.</p></div><Button onClick={() => setCreate(true)}>+ Nueva cita</Button></div><div className="card"><div className="calendar-toolbar"><div className="segmented">{['Día', 'Semana', 'Mes'].map(v => <button key={v} className={view === v ? 'active' : ''} onClick={() => setView(v)}>{v}</button>)}</div><div className="inline"><Button secondary onClick={() => setDay(add(day, view === 'Mes' ? -30 : view === 'Semana' ? -7 : -1))}>←</Button><Input aria-label="Fecha de agenda" type="date" value={day} onChange={e => e.target.value && setDay(e.target.value)} /><Button secondary onClick={() => setDay(add(day, view === 'Mes' ? 30 : view === 'Semana' ? 7 : 1))}>→</Button><Button secondary onClick={() => setDay(today())}>Hoy</Button></div></div><p className="muted small">Turnos: 09:00–13:00 y 15:00–20:00 · Hora de Perú</p><ErrorBox error={q.error} />{q.isLoading ? <Loading /> : view === 'Mes' ? <div className="month-grid">{days.map(date => <div className="month-day" key={date}><strong>{fecha(date)}</strong>{q.data?.filter(c => localDate(c.inicio) === date).map(c => <button className={'appointment ' + (c.estado === 'Cancelada' ? 'cancelled' : '')} key={c.id} onClick={() => setSelected(c)}>{hora(c.inicio)} {c.paciente.nombres}<small>{c.tipo}{c.estado!=='Confirmada'?' · '+c.estado:''}</small></button>)}</div>)}</div> : <div className="calendar-scroll"><div className="calendar" style={{
           gridTemplateColumns: `55px repeat(${days.length}, minmax(115px,1fr))`
         }}><div className="time-column"><div className="day-heading" />{Array.from({
               length: 12
@@ -45,7 +45,7 @@ export function Agenda() {
                 return <button key={c.id} className="appointment positioned" style={{
                   top: minutes,
                   height: Math.max(duration, 24)
-                }} onClick={() => setSelected(c)}><strong>{hora(c.inicio)} · {c.paciente.nombres}</strong><small>{c.tipo}</small></button>;
+                }} onClick={() => setSelected(c)}><strong>{hora(c.inicio)} · {c.paciente.nombres}</strong><small>{c.tipo}{c.estado!=='Confirmada'?' · '+c.estado:''}</small></button>;
               })}</div></div>)}</div></div>}</div>{create && <AppointmentModal initialDay={day} onClose={() => setCreate(false)} />} {selected && <AppointmentDetail appointment={selected} onClose={() => setSelected(null)} />}</>;
 }
 export function PatientAppointments({
@@ -118,14 +118,15 @@ function AppointmentDetail({
   onClose: () => void;
 }) {
   const [edit, setEdit] = useState(false),
-    [cancel, setCancel] = useState(false);
+    [cancel, setCancel] = useState(false), [noShow,setNoShow]=useState(false);
   const save = useSave('/citas/' + c.id, 'patch', onClose);
   const phone = '51' + c.paciente.telefono.replace(/\D/g, '').slice(-9),
     message = `Hola ${c.paciente.nombres}, te recordamos tu cita el ${fecha(localDate(c.inicio))} a las ${hora(c.inicio)} en Consultorio Juzel. Por favor confirma tu asistencia.`;
+  if(noShow)return <Modal title="Marcar como no asistió" onClose={()=>setNoShow(false)}><p>Se registrará que {c.paciente.nombres} {c.paciente.apellidos} no asistió a su cita. No se completarán sesiones ni se modificarán pagos.</p><ErrorBox error={save.error}/><div className="actions"><Button secondary onClick={()=>setNoShow(false)}>Volver</Button><Button disabled={save.isPending} onClick={()=>save.mutate({estado:'No asistió'})}>Confirmar inasistencia</Button></div></Modal>;
   if (edit) return <AppointmentModal appointment={c} onClose={onClose} />;
   return <Modal title={cancel ? '¿Seguro que deseas cancelar esta cita?' : 'Detalle de cita'} onClose={onClose}><h3>{c.paciente.nombres} {c.paciente.apellidos}</h3><p>{fecha(localDate(c.inicio))} · {hora(c.inicio)}–{hora(c.fin)}</p><p>{c.tipo} · <Badge>{c.estado}</Badge></p><ErrorBox error={save.error} />{cancel ? <div className="actions"><Button secondary onClick={() => setCancel(false)}>Volver</Button><Button disabled={save.isPending} onClick={() => save.mutate({
         estado: 'Cancelada'
       })}>Confirmar cancelación</Button></div> : <div className="detail-actions">{c.estado === 'Confirmada' && <><Button onClick={() => setEdit(true)}>Reprogramar</Button><Button secondary onClick={() => setCancel(true)}>Cancelar cita</Button><Button secondary disabled={save.isPending} onClick={() => save.mutate({
           estado: 'Completada'
-        })}>Marcar como atendida</Button><a className="btn secondary" href={`https://wa.me/${phone}?text=${encodeURIComponent(message)}`} target="_blank" rel="noreferrer">Enviar recordatorio WhatsApp</a></>}<Link className="text-link" to={'/pacientes/' + c.pacienteId} onClick={onClose}>Ver ficha del paciente →</Link></div>}</Modal>;
+        })}>Marcar como atendida</Button><Button secondary disabled={save.isPending||new Date(c.fin).getTime()>Date.now()} title="Disponible después de la hora de término de la cita" onClick={()=>setNoShow(true)}>Marcar como no asistió</Button><a className="btn secondary" href={`https://wa.me/${phone}?text=${encodeURIComponent(message)}`} target="_blank" rel="noreferrer">Enviar recordatorio WhatsApp</a></>}<Link className="text-link" to={'/pacientes/' + c.pacienteId} onClick={onClose}>Ver ficha del paciente →</Link></div>}</Modal>;
 }
