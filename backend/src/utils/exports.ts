@@ -10,12 +10,16 @@ const date = (d: Date) => d.toLocaleDateString('es-PE', {
 function pdf(res: Response, name: string) {
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `attachment; filename="${name}.pdf"`);
+  // Reserva la respuesta binaria antes de que PDFKit empiece a emitir datos.
+  // El controlador JSON no debe escribir mientras se inicia el stream.
+  res.flushHeaders();
   const doc = new PDFDocument({
     margin: 45,
     size: 'A4',
     bufferPages: true
   });
   doc.pipe(res);
+  doc.on('error', () => res.destroy());
   doc.fontSize(24).fillColor('#3FA98D').text('Juzel');
   doc.fontSize(10).fillColor('#6B7280').text('Consultorio Odontológico · Chiclayo, Perú').moveDown();
   doc.fillColor('#1F2937');

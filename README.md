@@ -4,6 +4,8 @@ MVP para el Consultorio Odontológico Juzel, Chiclayo, Perú. Una única usuaria
 
 ## Estado de la entrega
 
+**Para probar sin PostgreSQL:** consulta [PROBAR-LOCAL.md](PROBAR-LOCAL.md). El comando `npm run local` del backend prepara SQLite y una cuenta de demostración con datos ficticios, conservando los cambios entre reinicios.
+
 Las dependencias ya están instaladas y **frontend y backend compilan correctamente**. Prisma generó su cliente y validó el esquema. La base de datos todavía no está disponible, por lo que las migraciones y las pruebas de integración siguen pendientes. No se ha sustituido PostgreSQL por datos de demostración ni por almacenamiento del navegador.
 
 Las cuatro pruebas de cálculo de cuotas y horarios pasaron, y bcrypt se comprobó con un hash y su verificación. Se incluyen los archivos `package-lock.json` de ambos proyectos. Consulta [VERIFICACION.md](VERIFICACION.md) para los controles realizados, las advertencias de dependencias y los pendientes.

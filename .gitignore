@@ -6,3 +6,5 @@ backups/
 playwright-report/
 .npm-cache/
 *.tsbuildinfo
+backend/generated/
+backend/.local/

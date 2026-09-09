@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { isLocalDatabase } from '../../config/local-mode.js';
 import { patientStore as db } from './repository.js';
 import { patientSchema } from '../../utils/schemas.js';
 import { AppError } from '../../utils/domain.js';
@@ -17,13 +18,17 @@ export const patientService = {
       existingId: exists.deletedAt ? null : exists.id
     });
     return db.$transaction(async tx => {
+      const localNumber = isLocalDatabase
+        ? ((await tx.historiaClinica.aggregate({_max:{correlativo:true}}))._max.correlativo || 0) + 1
+        : undefined;
       const p = await tx.paciente.create({
         data: {
           ...data,
           nacimiento: new Date(data.nacimiento),
           historia: {
             create: {
-              numero: randomUUID()
+              numero: randomUUID(),
+              ...(isLocalDatabase ? {correlativo:localNumber!} : {})
             }
           }
         },

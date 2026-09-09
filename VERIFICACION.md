@@ -2,6 +2,11 @@
 
 ## Ejecutado en este equipo
 
+- Modo provisional SQLite: esquema aplicado, datos ficticios cargados y backend iniciado.
+- Prueba integral `scripts/smoke-api.mjs` aprobada contra SQLite: autenticación, duplicados, anamnesis, versiones inmutables, sesiones, cuotas, pagos parciales/sobrepagos, citas y cinco reportes.
+- Descargas PDF clínico, PDF de reporte y Excel verificadas mediante sus firmas binarias. Se corrigió un fallo de escritura doble al iniciar la respuesta PDF.
+- Navegador: acceso con la cuenta demo, carga del panel, listado de pacientes, ficha clínica con alerta médica e indicación de modo de prueba comprobados. Los datos se conservaron al reiniciar el servicio local.
+
 - Revisión sintáctica de 65 archivos TypeScript/TSX con el analizador Babel disponible localmente: sin errores.
 - Pruebas unitarias puras: 4 aprobadas de 4 (distribución exacta de céntimos, vencimiento mensual al final de mes, quincenas y límites de horarios peruanos).
 - Revisión de rutas, formularios y correspondencia con los requisitos.

@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "../../generated/local-client"
+}
+datasource db {
+  provider = "sqlite"
+  url = env("LOCAL_DATABASE_URL")
+}
+model Usuario {
+  id String @id @default(cuid())
+  username String @unique
+  nombre String
+  password String
+  tokenVersion Int @default(0)
+}
+model Paciente {
+  id String @id @default(cuid())
+  nombres String
+  apellidos String
+  tipoDocumento String
+  documento String @unique
+  nacimiento DateTime
+  sexo String
+  telefono String
+  direccion String
+  correo String?
+  createdAt DateTime @default(now())
+  deletedAt DateTime?
+  historia HistoriaClinica?
+  citas Cita[]
+  tratamientos PlanTratamiento[]
+  pagos Pago[]
+  @@index([apellidos, nombres])
+  @@index([telefono])
+}
+model HistoriaClinica {
+  id String @id @default(cuid())
+  correlativo Int @unique
+  numero String @unique
+  pacienteId String @unique
+  paciente Paciente @relation(fields: [pacienteId], references: [id])
+  medicacion String @default("")
+  derivacionMedico String @default("")
+  derivacionMotivo String @default("")
+  deletedAt DateTime?
+  antecedentes Antecedente[]
+  alergias Alergia[]
+  atenciones Atencion[]
+  odontograma Odontograma?
+}
+model Antecedente {
+  id String @id @default(cuid())
+  nombre String
+  controlado Boolean
+  historiaId String
+  historia HistoriaClinica @relation(fields: [historiaId], references: [id])
+}
+model Alergia {
+  id String @id @default(cuid())
+  nombre String
+  historiaId String
+  historia HistoriaClinica @relation(fields: [historiaId], references: [id])
+}
+model Atencion {
+  id String @id @default(cuid())
+  fecha DateTime
+  diagnostico String
+  procedimiento String
+  piezas Json
+  anestesico String
+  indicaciones String
+  historiaId String
+  historia HistoriaClinica @relation(fields: [historiaId], references: [id])
+  sesion Sesion?
+  createdAt DateTime @default(now())
+  @@index([historiaId, fecha])
+}
+model Odontograma {
+  id String @id @default(cuid())
+  historiaId String @unique
+  historia HistoriaClinica @relation(fields: [historiaId], references: [id])
+  versiones OdontogramaVersion[]
+}
+model OdontogramaVersion {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  odontogramaId String
+  odontograma Odontograma @relation(fields: [odontogramaId], references: [id])
+  piezas Pieza[]
+  @@index([odontogramaId, createdAt])
+}
+model Pieza {
+  id String @id @default(cuid())
+  numero Int
+  superficies Json
+  versionId String
+  version OdontogramaVersion @relation(fields: [versionId], references: [id])
+  @@unique([versionId, numero])
+}
+model Cita {
+  id String @id @default(cuid())
+  pacienteId String
+  paciente Paciente @relation(fields: [pacienteId], references: [id])
+  inicio DateTime
+  fin DateTime
+  tipo String
+  estado String @default("Confirmada")
+  createdAt DateTime @default(now())
+  @@index([inicio, fin])
+}
+model PlanTratamiento {
+  id String @id @default(cuid())
+  pacienteId String
+  paciente Paciente @relation(fields: [pacienteId], references: [id])
+  nombre String
+  descripcion String
+  totalSesiones Int
+  costo Decimal
+  estado String @default("En curso")
+  createdAt DateTime @default(now())
+  sesiones Sesion[]
+  cuotas Cuota[]
+  pagos Pago[]
+}
+model Sesion {
+  id String @id @default(cuid())
+  numero Int
+  completada Boolean @default(false)
+  tratamientoId String
+  tratamiento PlanTratamiento @relation(fields: [tratamientoId], references: [id])
+  atencionId String? @unique
+  atencion Atencion? @relation(fields: [atencionId], references: [id])
+  @@unique([tratamientoId, numero])
+}
+model Cuota {
+  id String @id @default(cuid())
+  numero Int
+  monto Decimal
+  vencimiento DateTime
+  tratamientoId String
+  tratamiento PlanTratamiento @relation(fields: [tratamientoId], references: [id])
+  pagos Pago[]
+  @@unique([tratamientoId, numero])
+}
+model Pago {
+  id String @id @default(cuid())
+  pacienteId String
+  paciente Paciente @relation(fields: [pacienteId], references: [id])
+  tratamientoId String
+  tratamiento PlanTratamiento @relation(fields: [tratamientoId], references: [id])
+  cuotaId String
+  cuota Cuota @relation(fields: [cuotaId], references: [id])
+  monto Decimal
+  fecha DateTime
+  medio String
+  createdAt DateTime @default(now())
+  @@index([fecha])
+}

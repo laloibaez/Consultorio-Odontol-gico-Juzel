@@ -1,4 +1,5 @@
 import { repository as db } from './repository.js';
+import { isLocalDatabase } from '../../config/local-mode.js';
 import { appointmentSchema } from '../../utils/schemas.js';
 import { requirePatient } from '../pacientes/repository.js';
 import { AppError, checkHours, peruDay } from '../../utils/domain.js';
@@ -64,7 +65,7 @@ export const agendaService = {
       fin = new Date(inicio.getTime() + d.duracion * 60000);
     checkHours(inicio, fin);
     return db.$transaction(async tx => {
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(194826)`;
+      if (!isLocalDatabase) await tx.$executeRaw`SELECT pg_advisory_xact_lock(194826)`;
       if (id) {
         const old = await tx.cita.findUnique({
           where: {

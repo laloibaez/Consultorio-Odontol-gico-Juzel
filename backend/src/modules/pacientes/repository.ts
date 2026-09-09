@@ -1,4 +1,5 @@
 import { db } from '../../config/db.js';
+import { isLocalDatabase } from '../../config/local-mode.js';
 import { AppError } from '../../utils/domain.js';
 export const summaryInclude = {
   historia: {
@@ -26,7 +27,14 @@ export async function requirePatient(id: string) {
   return p;
 }
 export const patientRepository = {
-  search: (query: string) => db.paciente.findMany({
+  search: async (query: string) => {
+    if (isLocalDatabase) {
+      const patients = await db.paciente.findMany({where:{deletedAt:null},include:summaryInclude,orderBy:{apellidos:'asc'}});
+      const normalize = (v:string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+      const words=normalize(query.trim()).split(/\s+/);
+      return patients.filter(p=>words.every(word=>normalize(`${p.nombres} ${p.apellidos} ${p.documento} ${p.telefono}`).includes(word))).slice(0,100);
+    }
+    return db.paciente.findMany({
     where: {
       deletedAt: null,
       OR: [{
@@ -58,7 +66,8 @@ export const patientRepository = {
       apellidos: 'asc'
     },
     take: 100
-  })
+  });
+  }
 };
 export const patientStore = {
   paciente: db.paciente,

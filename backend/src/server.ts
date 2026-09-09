@@ -6,6 +6,7 @@ import { api } from './routes.js';
 import { errors } from './middlewares/errors.js';
 import { secret } from './middlewares/auth.js';
 import { db } from './config/db.js';
+import { isLocalDatabase } from './config/local-mode.js';
 secret();
 const app = express();
 app.use(helmet());
@@ -38,6 +39,7 @@ app.get('/health', async (_req, res) => {
     });
   }
 });
+app.get('/api/v1/entorno', (_req,res)=>res.json({data:{local:isLocalDatabase},error:null,message:'Entorno de ejecución'}));
 app.use('/api/v1', api);
 app.use((_req, res) => res.status(404).json({
   data: null,
