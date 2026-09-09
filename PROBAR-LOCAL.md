@@ -5,6 +5,7 @@ El modo provisional utiliza SQLite: una base local persistente, con los mismos f
 ## Acceso
 
 Abre **http://localhost:5173**.
+También se admite **http://127.0.0.1:5173** en modo local. Si actualizas el código del backend, detén su terminal con Ctrl+C y vuelve a ejecutar `npm.cmd run local` para cargar los cambios.
 
 - Usuario: **demo**
 - Contraseña inicial: **JuzelDemo2026!**

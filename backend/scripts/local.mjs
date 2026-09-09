@@ -3,6 +3,21 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync,spawn} from 'node:child_process';
 import {randomBytes} from 'node:crypto';
+import net from 'node:net';
+
+// Comprueba el puerto antes de generar Prisma: su DLL no se puede reemplazar
+// en Windows mientras otro servidor local la tiene cargada.
+const port=Number(process.env.LOCAL_PORT||4000);
+if(!Number.isInteger(port)||port<1||port>65535)throw new Error('LOCAL_PORT debe ser un puerto válido.');
+const available=await new Promise((resolve,reject)=>{
+  const probe=net.createServer();
+  probe.once('error',error=>error.code==='EADDRINUSE'?resolve(false):reject(error));
+  probe.listen(port,'127.0.0.1',()=>probe.close(()=>resolve(true)));
+});
+if(!available){
+  console.log(`\nEl puerto ${port} ya está ocupado. No se modificó el motor de la base local.\nSi Juzel ya está abierto, entra a http://localhost:5173.\nPara iniciarlo en esta terminal, detén el backend anterior con Ctrl+C y vuelve a ejecutar npm.cmd run local.\n`);
+  process.exit(1);
+}
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const local=path.join(root,'.local');

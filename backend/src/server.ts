@@ -7,12 +7,11 @@ import { errors } from './middlewares/errors.js';
 import { secret } from './middlewares/auth.js';
 import { db } from './config/db.js';
 import { isLocalDatabase } from './config/local-mode.js';
+import { createCorsOptions } from './config/cors.js';
 secret();
 const app = express();
 app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173'
-}));
+app.use(cors(createCorsOptions(process.env.FRONTEND_URL || 'http://localhost:5173',isLocalDatabase)));
 app.use(express.json({
   limit: '256kb'
 }));

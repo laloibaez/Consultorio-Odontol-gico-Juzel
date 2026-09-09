@@ -1,7 +1,7 @@
 import {EnvironmentBanner} from '../shared/components/EnvironmentBanner';
 import React, {useEffect,useState} from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Activity, LayoutDashboard, Users, CalendarDays, ChartNoAxesCombined, Settings as SettingsIcon, LogOut } from 'lucide-react';
 import { AuthProvider, ProtectedRoute, Login, useAuth } from '../features/auth/Auth';
@@ -13,6 +13,9 @@ import { NewAttention } from '../features/historia-clinica/Clinical';
 import { NewTreatment } from '../features/tratamientos/Treatments';
 import { Agenda } from '../features/agenda/Agenda';
 import '../styles/index.css';
+function BrowserRouter({children}:{children:React.ReactNode}){
+  return <Router future={{v7_startTransition:true,v7_relativeSplatPath:true}}>{children}</Router>;
+}
 const qc = new QueryClient({
   defaultOptions: {
     queries: {

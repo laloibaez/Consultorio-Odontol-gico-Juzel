@@ -2,6 +2,8 @@
 
 ## Ejecutado en este equipo
 
+- Corrección CORS: pruebas HTTP GET y OPTIONS para localhost/127.0.0.1, rechazo de otros puertos y orígenes, y conservación del origen configurado en modo PostgreSQL. Seis pruebas del backend aprobadas, incluyendo las cuatro de dominio.
+
 - Modo provisional SQLite: esquema aplicado, datos ficticios cargados y backend iniciado.
 - Prueba integral `scripts/smoke-api.mjs` aprobada contra SQLite: autenticación, duplicados, anamnesis, versiones inmutables, sesiones, cuotas, pagos parciales/sobrepagos, citas y cinco reportes.
 - Descargas PDF clínico, PDF de reporte y Excel verificadas mediante sus firmas binarias. Se corrigió un fallo de escritura doble al iniciar la respuesta PDF.
