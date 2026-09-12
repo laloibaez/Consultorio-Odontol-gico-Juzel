@@ -32,6 +32,8 @@ Los cambios se conservan en `backend/.local/juzel.db` al cerrar o reiniciar. El 
 
 ## Qué probar primero
 
+En **Pacientes → Nuevo paciente**, selecciona DNI, escribe sus ocho dígitos y pulsa **Consultar DNI**. Se envía el número a eldni.com y se completan nombres y apellidos para revisarlos. La consulta requiere internet incluso en modo local; si falla, puedes completar los campos manualmente. Cambiar el documento limpia los nombres obtenidos de la consulta anterior.
+
 1. Abre la ficha **Lucía Torres · Demo** y comprueba su alerta médica.
 2. Cambia un hallazgo del odontograma y guarda una nueva versión.
 3. Registra una atención y vincúlala a una sesión pendiente de su tratamiento.

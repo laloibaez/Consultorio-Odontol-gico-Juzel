@@ -1,9 +1,7 @@
+import {PatientRegistration} from './PatientRegistration';
 import { useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Search, Plus, AlertTriangle, Download } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useData, useDebounce, useSave } from '../../shared/hooks/query';
 import { Patient } from '../../shared/types';
 import { Input, Button, Field, Table, Badge, Loading, ErrorBox, Empty, MedicalAlert, Modal } from '../../shared/components/ui';
@@ -20,58 +18,7 @@ export function Patients() {
   const q = useData<Patient[]>('/pacientes?query=' + encodeURIComponent(query));
   return <><div className="page-head"><div><h1>Pacientes</h1><p className="muted">Cada historia, un cuidado continuo.</p></div><Link className="btn" to="/pacientes/nuevo"><Plus size={18} /> Nuevo paciente</Link></div><div className="card"><div className="search"><Search size={18} /><Input aria-label="Buscar pacientes" placeholder="Buscar por nombre, documento o teléfono" value={search} onChange={e => setSearch(e.target.value)} /></div><ErrorBox error={q.error} />{q.isLoading ? <Loading /> : q.data?.length ? <Table headers={['Historia clínica', 'Paciente', 'Documento', 'Teléfono', 'Última atención', '']}>{q.data.map(p => <tr key={p.id}><td className="muted">{p.historia.numero}</td><td><Link to={'/pacientes/' + p.id}><strong>{p.nombres} {p.apellidos}</strong></Link>{(p.historia.alergias.length > 0 || p.historia.antecedentes.some(a => !a.controlado)) && <AlertTriangle aria-label="Alerta médica" className="alert-icon" size={16} />}</td><td>{p.documento}</td><td>{p.telefono}</td><td>{p.historia.atenciones[0] ? fecha(p.historia.atenciones[0].fecha) : 'Sin atenciones'}</td><td><Link className="text-link" to={'/pacientes/' + p.id}>Ver ficha →</Link></td></tr>)}</Table> : <Empty>No se encontraron pacientes.</Empty>}</div></>;
 }
-const schema = z.object({
-  nombres: z.string().trim().min(1, 'Campo obligatorio'),
-  apellidos: z.string().trim().min(1, 'Campo obligatorio'),
-  tipoDocumento: z.enum(['DNI', 'CE', 'Pasaporte']),
-  documento: z.string().min(8, 'Mínimo 8 caracteres').max(20),
-  nacimiento: z.string().min(1, 'Campo obligatorio').refine(v => v <= today(), 'Fecha futura inválida'),
-  sexo: z.enum(['Femenino', 'Masculino', 'Otro']),
-  telefono: z.string().regex(/^(\+?51)?9\d{8}$/, 'Ingresa un celular peruano de 9 dígitos'),
-  direccion: z.string().min(1, 'Campo obligatorio'),
-  correo: z.union([z.string().email('Correo inválido'), z.literal('')])
-}).superRefine((v, ctx) => {
-  if (v.tipoDocumento === 'DNI' && !/^\d{8}$/.test(v.documento)) ctx.addIssue({
-    code: 'custom',
-    path: ['documento'],
-    message: 'El DNI debe tener 8 dígitos'
-  });
-});
-export function NewPatient() {
-  const nav = useNavigate(),
-    save = useSave('/pacientes');
-  const {
-    register,
-    handleSubmit,
-    formState: {
-      errors
-    }
-  } = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    mode: 'onChange',
-    defaultValues: {
-      tipoDocumento: 'DNI',
-      sexo: 'Femenino',
-      correo: ''
-    }
-  });
-  const existing = (save.error as {
-    response?: {
-      data?: {
-        data?: {
-          existingId?: string;
-        };
-      };
-    };
-  })?.response?.data?.data?.existingId;
-  return <><Link className="text-link" to="/pacientes">← Pacientes</Link><h1>Nuevo paciente</h1><p className="muted">El número de historia clínica se generará automáticamente.</p><form className="card" onSubmit={handleSubmit(v => save.mutate(v, {
-      onSuccess: p => nav('/pacientes/' + p.id, {
-        state: {
-          message: 'Paciente registrado correctamente'
-        }
-      })
-    }))}><div className="form-grid">{(['nombres', 'apellidos'] as const).map(k => <Field key={k} label={(k === 'nombres' ? 'Nombres' : 'Apellidos') + ' *'} error={errors[k]?.message}><Input {...register(k)} /></Field>)}<Field label="Tipo de documento *"><select {...register('tipoDocumento')}><option>DNI</option><option>CE</option><option>Pasaporte</option></select></Field><Field label="N° de documento *" error={errors.documento?.message}><Input {...register('documento')} /></Field><Field label="Fecha de nacimiento *" error={errors.nacimiento?.message}><Input type="date" max={today()} {...register('nacimiento')} /></Field><Field label="Sexo *"><select {...register('sexo')}><option>Femenino</option><option>Masculino</option><option>Otro</option></select></Field><Field label="Teléfono *" error={errors.telefono?.message}><Input type="tel" {...register('telefono')} /></Field><Field label="Correo (opcional)" error={errors.correo?.message}><Input type="email" {...register('correo')} /></Field><Field label="Dirección *" error={errors.direccion?.message}><Input {...register('direccion')} /></Field></div><ErrorBox error={save.error} />{existing && <Link className="text-link" to={'/pacientes/' + existing}>Abrir la ficha existente</Link>}<div className="actions"><Link className="btn secondary" to="/pacientes">Cancelar</Link><Button disabled={save.isPending}>{save.isPending ? 'Registrando…' : 'Registrar paciente'}</Button></div></form></>;
-}
+export function NewPatient(){return <PatientRegistration/>;}
 const tabs = ['Anamnesis', 'Historial de atenciones', 'Odontograma', 'Tratamientos', 'Pagos y saldos', 'Citas'];
 export function PatientDetail() {
   const {

@@ -2,6 +2,9 @@
 
 ## Ejecutado en este equipo
 
+- Inasistencia: regla de cierre después de la hora final, conservación del registro y bloqueo de cambios a citas cerradas. Diez pruebas del backend aprobadas y compilación de ambos proyectos correcta.
+- Consulta DNI: ruta autenticada y botón conectados con autorización explícita del usuario para enviar el DNI a eldni.com. Se reutiliza el método de Herramientas TIC y se probó con respuestas simuladas; no se realizaron consultas con documentos reales. El formulario mantiene la entrada manual si el proveedor falla y limpia los nombres autocompletados si cambia el documento.
+
 - Corrección CORS: pruebas HTTP GET y OPTIONS para localhost/127.0.0.1, rechazo de otros puertos y orígenes, y conservación del origen configurado en modo PostgreSQL. Seis pruebas del backend aprobadas, incluyendo las cuatro de dominio.
 
 - Modo provisional SQLite: esquema aplicado, datos ficticios cargados y backend iniciado.
